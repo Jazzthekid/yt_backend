@@ -9,4 +9,4 @@ class Comment (models.Model):
     likes = models.IntegerField()
     dislikes = models.IntegerField ()
 
-# class Reply (models.Model):
+
