@@ -4,4 +4,4 @@ from .models import Reply
 class ReplySerializer(serializers.ModelSerializer):
     class Meta:
         model = Reply
-        fields = ['id','comment','text']
+        fields = ['id','comment','user','text']

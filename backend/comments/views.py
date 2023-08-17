@@ -17,11 +17,3 @@ def get_comments_for_video(request, video_id):
         return Response({"error": "Video ID not found"}, status=status.HTTP_404_NOT_FOUND)
     
 
-@api_view(['POST'])
-@permission_classes([IsAuthenticated])
-def create_comments(request):
-    serializer = CommentSerializer(data=request.data)
-    if serializer.is_valid():
-        serializer.save(user=request.user)
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
