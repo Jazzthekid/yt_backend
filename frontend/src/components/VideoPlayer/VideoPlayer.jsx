@@ -1,5 +1,5 @@
+// components/VideoPlayer/VideoPlayer.jsx
 import React from "react";
-import "./VideoPlayer.css";
 
 const VideoPlayer = ({ videoId }) => {
   if (!videoId) {
@@ -15,7 +15,6 @@ const VideoPlayer = ({ videoId }) => {
         height="500"
         src={embedUrl}
         title="YouTube Video"
-        frameBorder="0"
         allowFullScreen
       ></iframe>
     </div>

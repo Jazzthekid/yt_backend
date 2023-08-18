@@ -1,5 +1,5 @@
+// components/VideoPlayer/VideoInfo.jsx
 import React from "react";
-import "./VideoInfo.css";
 
 const VideoInfo = ({ video }) => {
   if (!video) {
