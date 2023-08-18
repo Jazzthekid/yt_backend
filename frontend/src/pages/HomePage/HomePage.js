@@ -1,40 +1,81 @@
-import React from "react";
-import { useEffect, useState } from "react";
-import useAuth from "../../hooks/useAuth";
-
+import React, { useEffect, useState } from "react";
+import VideoPlayer from "../../components/VideoPlayer/VideoPlayer";
+import RelatedVideos from "../../components/VideoPlayer/RelatedVideos";
 import axios from "axios";
+import useAuth from "../../hooks/useAuth"; 
 
 const HomePage = () => {
-  // The "user" value from this Hook contains the decoded logged in user information (username, first name, id)
-  // The "token" value is the JWT token that you will send in the header of any request requiring authentication
-  //TODO: Add an AddCars Page to add a car for a logged in user's garage
-  const [user, token] = useAuth();
-  const [cars, setCars] = useState([]);
+  const [currentVideo, setCurrentVideo] = useState(null);
+  const [relatedVideos, setRelatedVideos] = useState([]);
+  const [user, token] = useAuth(); 
+  const apiKey = "AIzaSyCLUNOYsQVRMKJQ_9zdfTbE_iceDVGJ5uY"; 
+  const [searchQuery, setSearchQuery] = useState(""); 
 
   useEffect(() => {
-    const fetchCars = async () => {
+    
+    const fetchVideoData = async () => {
       try {
-        let response = await axios.get("http://127.0.0.1:8000/api/cars/", {
-          headers: {
-            Authorization: "Bearer " + token,
-          },
+      
+        const currentVideoResponse = await axios.get(
+           `https://www.googleapis.com/youtube/v3/search?q=${searchQuery}&key=${apiKey}`,
+          {
+            headers: {
+              Authorization: "Bearer " + token,
+            },
+          }
+        );
+        const mainVideoData = currentVideoResponse.data.items[0];
+
+      
+        const relatedVideoResponse = await axios.get(
+          `https://www.googleapis.com/youtube/v3/search?relatedToVideoId=${mainVideoData.id.videoId}&type=video&key=${apiKey}`,
+          {
+            headers: {
+              Authorization: "Bearer " + token,
+            },
+          }
+        );
+        const relatedVideoData = relatedVideoResponse.data.items;
+
+      
+        setCurrentVideo({
+          id: mainVideoData.id.videoId,
+          title: mainVideoData.snippet.title,
+          description: mainVideoData.snippet.description,
         });
-        setCars(response.data);
+
+        const relatedVideosData = relatedVideoData.map(item => ({
+          id: item.id.videoId,
+          title: item.snippet.title,
+          description: item.snippet.description,
+        }));
+        setRelatedVideos(relatedVideosData);
       } catch (error) {
-        console.log(error.response.data);
+        console.error("Error fetching video data:", error);
       }
     };
-    fetchCars();
-  }, [token]);
+
+    fetchVideoData();
+  }, [token, apiKey]); 
+
+  const handleSelectVideo = (video) => {
+    setCurrentVideo(video);
+  };
+
   return (
-    <div className="container">
-      <h1>Home Page for {user.username}!</h1>
-      {cars &&
-        cars.map((car) => (
-          <p key={car.id}>
-            {car.year} {car.model} {car.make}
-          </p>
-        ))}
+    <div className="home-page">
+      <div className="content">
+        {currentVideo && (
+          <VideoPlayer
+            videoId={currentVideo.id}
+            title={currentVideo.title}
+            description={currentVideo.description}
+          />
+        )}
+        {relatedVideos.length > 0 && (
+          <RelatedVideos videos={relatedVideos} onSelectVideo={handleSelectVideo} />
+        )}
+      </div>
     </div>
   );
 };
